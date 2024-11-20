@@ -1,61 +1,52 @@
-// src/Gallery.jsx
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from 'react';
 
 const Gallery = () => {
   const [tours, setTours] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Fetch data from API
+  // The function to fetch tours
   const fetchTours = async () => {
     setLoading(true);
     try {
-      const response = await fetch("https://course-api.com/react-tours-project");
-      if (!response.ok) throw new Error("Error fetching tours");
+      // Use CORS proxy to bypass the CORS issue
+      const response = await fetch("https://cors-anywhere.herokuapp.com/https://course-api.com/react-tours-project");
+      
+      // Check if the response is ok (status code 200-299)
+      if (!response.ok) {
+        throw new Error(`Error: ${response.statusText}`);
+      }
+
       const data = await response.json();
-      setTours(data);
+      setTours(data);  // Set the fetched tours
     } catch (err) {
-      setError(err.message);
+      setError(`Failed to fetch tours: ${err.message}`);  // Handle the error
     } finally {
-      setLoading(false);
+      setLoading(false);  // Set loading to false after fetch completes
     }
   };
 
+  // Fetch tours when the component mounts
   useEffect(() => {
     fetchTours();
   }, []);
 
-  // Remove a tour
-  const removeTour = (id) => {
-    setTours(tours.filter((tour) => tour.id !== id));
-  };
+  if (loading) {
+    return <div>Loading...</div>;  // Show loading message
+  }
 
-  // Toggle description visibility
-  const toggleDescription = (id) => {
-    setTours(
-      tours.map((tour) =>
-        tour.id === id ? { ...tour, showMore: !tour.showMore } : tour
-      )
-    );
-  };
-
-  if (loading) return <h2>Loading...</h2>;
-  if (error) return <h2>Error: {error}</h2>;
+  if (error) {
+    return <div>{error}</div>;  // Show error message
+  }
 
   return (
     <div className="gallery">
-      {tours.map(({ id, name, price, info, image, showMore }) => (
-        <div key={id} className="tour-card">
-          <img src={image} alt={name} />
-          <h3>{name}</h3>
-          <p>${price}</p>
-          <p>
-            {showMore ? info : `${info.substring(0, 100)}...`}
-            <button onClick={() => toggleDescription(id)}>
-              {showMore ? "Show Less" : "Read More"}
-            </button>
-          </p>
-          <button onClick={() => removeTour(id)}>Not Interested</button>
+      {tours.map((tour) => (
+        <div key={tour.id} className="tour-card">
+          <img src={tour.image} alt={tour.name} />
+          <h3>{tour.name}</h3>
+          <p>{tour.price}</p>
+          <p>{tour.info}</p>
         </div>
       ))}
     </div>

@@ -1,4 +1,4 @@
-// src/App.jsx
+import "./App.css";
 import React from "react";
 import Gallery from "./Gallery";
 
