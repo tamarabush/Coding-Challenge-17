@@ -1,18 +1,17 @@
+//Creating Gallery.jsx
+
 import React, { useState, useEffect } from 'react';
 
+//creating Gallery function 
 function Gallery() {
   const [tours, setTours] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  //Fetching the API
   useEffect(() => {
     fetch('https://api.allorigins.win/get?url=https://course-api.com/react-tours-project')
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        return response.json();
-      })
+      .then(response => response.json())
       .then(data => {
         setTours(JSON.parse(data.contents));
         setLoading(false);
@@ -25,7 +24,8 @@ function Gallery() {
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>{error}</div>;
-
+  
+  //Returning to show the ouput
   return (
     <div className="gallery">
       {tours.map(tour => (
@@ -37,7 +37,7 @@ function Gallery() {
             {tour.info.length > 100 ? `${tour.info.substring(0, 100)}...` : tour.info}
             {tour.info.length > 100 && (
               <button onClick={() => alert(tour.info)}>
-                {tour.showMore ? 'Show Less' : 'Read More'}
+                Read More
               </button>
             )}
           </p>
