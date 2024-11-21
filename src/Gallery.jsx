@@ -1,56 +1,53 @@
 import React, { useState, useEffect } from 'react';
 
-const Gallery = () => {
+function Gallery() {
   const [tours, setTours] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // The function to fetch tours
-  const fetchTours = async () => {
-    setLoading(true);
-    try {
-      // Use CORS proxy to bypass the CORS issue
-      const response = await fetch("https://cors-anywhere.herokuapp.com/https://course-api.com/react-tours-project");
-      
-      // Check if the response is ok (status code 200-299)
-      if (!response.ok) {
-        throw new Error(`Error: ${response.statusText}`);
-      }
-
-      const data = await response.json();
-      setTours(data);  // Set the fetched tours
-    } catch (err) {
-      setError(`Failed to fetch tours: ${err.message}`);  // Handle the error
-    } finally {
-      setLoading(false);  // Set loading to false after fetch completes
-    }
-  };
-
-  // Fetch tours when the component mounts
   useEffect(() => {
-    fetchTours();
+    fetch('https://api.allorigins.win/get?url=https://course-api.com/react-tours-project')
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
+      .then(data => {
+        setTours(JSON.parse(data.contents));
+        setLoading(false);
+      })
+      .catch(err => {
+        setError(`Failed to fetch tours: ${err.message}`);
+        setLoading(false);
+      });
   }, []);
 
-  if (loading) {
-    return <div>Loading...</div>;  // Show loading message
-  }
-
-  if (error) {
-    return <div>{error}</div>;  // Show error message
-  }
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>{error}</div>;
 
   return (
     <div className="gallery">
-      {tours.map((tour) => (
+      {tours.map(tour => (
         <div key={tour.id} className="tour-card">
           <img src={tour.image} alt={tour.name} />
           <h3>{tour.name}</h3>
           <p>{tour.price}</p>
-          <p>{tour.info}</p>
+          <p>
+            {tour.info.length > 100 ? `${tour.info.substring(0, 100)}...` : tour.info}
+            {tour.info.length > 100 && (
+              <button onClick={() => alert(tour.info)}>
+                {tour.showMore ? 'Show Less' : 'Read More'}
+              </button>
+            )}
+          </p>
+          <button onClick={() => setTours(tours.filter(t => t.id !== tour.id))}>
+            Not Interested
+          </button>
         </div>
       ))}
     </div>
   );
-};
+}
 
 export default Gallery;
